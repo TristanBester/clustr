@@ -1,145 +1,189 @@
-mod utils;
-use crate::utils::is_similar;
+mod clustering;
+mod similarity;
 
-fn init_container<'a>(inputs: &Vec<&'a str>) -> Vec<Vec<&'a str>> {
-    if inputs.len() == 0 {
-        panic!("inputs cannot be empty.");
+use crate::clustering::{cluster, merge_clusters};
+use crossbeam;
+use fast_math::log2_raw;
+use std::sync::{Arc, Mutex};
+
+fn form_clusters<'a>(
+    inputs: &'a Vec<&'a str>,
+    max_edit_frac: f32,
+    n_threads: usize,
+) -> Vec<Vec<Vec<&'a str>>> {
+    if n_threads > inputs.len() {
+        panic!("Not enough work per thread. Ensure n_threads is not greater than the number of input strings.")
     }
 
-    let mut container = vec![Vec::new(); inputs.len()];
+    let inputs_per_thread = inputs.len() / n_threads as usize;
+    let results = Arc::new(Mutex::new(Vec::new()));
 
-    for (i, s) in inputs.iter().enumerate() {
-        container[i].push(*s);
-    }
-    container
-}
+    crossbeam::scope(|s| {
+        for i in 0..n_threads {
+            let results = Arc::clone(&results);
+            let start = i * inputs_per_thread;
+            let end;
 
-fn form_clusters<'a>(inputs: &Vec<&'a str>, tol: f32) -> Vec<Vec<&'a str>> {
-    if inputs.len() == 0 {
-        panic!("inputs cannot be empty.");
-    }
-
-    let mut container = init_container(inputs);
-
-    // Store if value has been moved into a cluster
-    let mut moved = vec![false; inputs.len()];
-    // Store if value is cluster representative
-    let mut is_repr = vec![false; inputs.len()];
-
-    for i in 0..inputs.len() {
-        if moved[i] {
-            // A value cannot be moved into multiple clusters
-            continue;
-        } else {
-            // If value has not been moved into any of the previous clusters
-            // it forms a new cluster
-            is_repr[i] = true;
-        }
-
-        for j in i + 1..inputs.len() {
-            if is_similar(container[i][0], container[j][0], tol) {
-                let str_ref = container[j][0];
-                container[i].push(str_ref);
-                moved[j] = true;
-            }
-        }
-    }
-
-    // Delete single value vectors remaining after values moved into cluster
-    for (i, v) in moved.iter().enumerate().rev() {
-        if *v {
-            container.remove(i);
-        }
-    }
-    container
-}
-
-fn merge_clusters<'a>(set_one: &mut Vec<Vec<&'a str>>, set_two: &mut Vec<Vec<&'a str>>, tol: f32) {
-    let mut moved = vec![false; set_two.len()];
-
-    for i in 0..set_one.len() {
-        for j in 0..set_two.len() {
-            if moved[j] {
-                continue;
+            if i + 1 != n_threads {
+                end = (i + 1) * inputs_per_thread;
+            } else {
+                end = inputs.len()
             }
 
-            if is_similar(set_one[i][0], set_two[j][0], tol) {
-                set_one[i].append(&mut set_two[j]);
-                moved[j] = true;
-            }
+            s.spawn(move |_| {
+                let clusters = cluster(&inputs[start..end], max_edit_frac);
+                {
+                    results.lock().unwrap().push(clusters);
+                }
+            });
         }
-    }
-
-    for (i, m) in moved.iter().enumerate() {
-        if !*m {
-            set_one.push(set_two[i].clone());
-        }
-    }
+    })
+    .unwrap();
+    return results.lock().unwrap().clone();
 }
 
-#[cfg(test)]
+pub fn aggregate_results<'a>(
+    results: Vec<Vec<Vec<&'a str>>>,
+    max_edit_frac: f32,
+) -> Vec<Vec<&'a str>> {
+    let mut results = Arc::new(results);
+    let n_aggregations = log2_raw(results.len() as f32).ceil() as usize;
+
+    let aggregations = Arc::new(Mutex::new(Vec::new()));
+
+    for _ in 0..n_aggregations {
+        crossbeam::scope(|s| {
+            for j in (0..results.len()).step_by(2) {
+                let results = Arc::clone(&results);
+                let aggregations = Arc::clone(&aggregations);
+
+                s.spawn(move |_| {
+                    let x = &mut results[j].clone();
+
+                    if j + 1 == results.len() {
+                        aggregations.lock().unwrap().push(results[j].clone());
+                    } else {
+                        let y = &mut results[j + 1].clone();
+                        let agg = merge_clusters(x, y, max_edit_frac);
+                        aggregations.lock().unwrap().push(agg);
+                    }
+                });
+            }
+        })
+        .unwrap();
+
+        results = Arc::new(aggregations.lock().unwrap().clone());
+        aggregations.lock().unwrap().clear();
+    }
+    // return aggregations.lock().unwrap()[0].clone();
+    return results.to_vec()[0].clone();
+}
+
 mod tests {
-    mod merge_clusters {
-        use crate::merge_clusters;
+
+    mod aggregate_results {
+        use crate::aggregate_results;
 
         #[test]
-        fn test_merge_no_overlap() {
-            let mut set_one = vec![vec!["a"], vec!["b"]];
-            let mut set_two = vec![vec!["c"], vec!["d"]];
-            let expected = vec![vec!["a"], vec!["b"], vec!["c"], vec!["d"]];
-
-            merge_clusters(&mut set_one, &mut set_two, 0.0);
-            assert_eq!(set_one, expected);
-        }
-
-        #[test]
-        fn test_merge_full_overlap() {
-            let mut set_one = vec![vec!["aa"], vec!["bb"]];
-            let mut set_two = vec![vec!["aa"], vec!["bb"]];
+        fn test_one_merge() {
+            let input = vec![vec![vec!["aa"], vec!["bb"]], vec![vec!["aa"], vec!["bb"]]];
             let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
+            let results = aggregate_results(input, 0.0);
 
-            merge_clusters(&mut set_one, &mut set_two, 0.5);
-            assert_eq!(set_one, expected);
+            for e in expected {
+                assert!(results.contains(&e));
+            }
         }
 
         #[test]
-        fn test_partial_overlap() {
-            let mut set_one = vec![vec!["aa"], vec!["bb"]];
-            let mut set_two = vec![vec!["aa"], vec!["bb"], vec!["cc"]];
-            let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"], vec!["cc"]];
+        fn test_three_merge() {
+            let input = vec![
+                vec![vec!["aa"]],
+                vec![vec!["bb"]],
+                vec![vec!["aa"]],
+                vec![vec!["bb"]],
+            ];
+            let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
+            let results = aggregate_results(input, 0.0);
 
-            merge_clusters(&mut set_one, &mut set_two, 0.5);
-            assert_eq!(set_one, expected);
+            for e in expected {
+                assert!(results.contains(&e));
+            }
         }
 
         #[test]
-        fn test_merge_tol_correct() {
-            let mut set_one = vec![vec!["aa"], vec!["cc"]];
-            let mut set_two = vec![vec!["ab"], vec!["cd"]];
-            let expected = vec![vec!["aa", "ab"], vec!["cc", "cd"]];
+        fn test_two_merge_one_pass() {
+            let input = vec![vec![vec!["aa"]], vec![vec!["bb"]], vec![vec!["aa"]]];
+            let expected = vec![vec!["aa", "aa"], vec!["bb"]];
+            let results = aggregate_results(input, 0.0);
 
-            merge_clusters(&mut set_one, &mut set_two, 0.5);
-            assert_eq!(set_one, expected);
+            for e in expected {
+                assert!(results.contains(&e));
+            }
         }
-    }
-
-    mod init_container {
-        use crate::init_container;
 
         #[test]
-        fn test_structure_correct() {
-            let inputs = vec!["a", "b"];
-            let expected = vec![vec!["a"], vec!["b"]];
+        fn test_six_merge_one_pass() {
+            let input = vec![
+                vec![vec!["aa"]],
+                vec![vec!["bb"]],
+                vec![vec!["aa"]],
+                vec![vec!["bb"]],
+                vec![vec!["aa"]],
+                vec![vec!["bb"]],
+                vec![vec!["aa"]],
+            ];
+            let expected = vec![vec!["aa", "aa", "aa", "aa"], vec!["bb", "bb", "bb"]];
+            let results = aggregate_results(input, 0.0);
 
-            let results = init_container(&inputs);
+            for e in expected {
+                assert!(results.contains(&e));
+            }
+        }
+
+        #[test]
+        fn test_two_merge_multiple_element_clusters() {
+            let input = vec![
+                vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
+                vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
+                vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
+            ];
+            let expected = vec![
+                vec!["aaa", "aaa", "aaa", "aaa", "aaa", "aaa"],
+                vec!["bbb", "bbb", "bbb", "bbb", "bbb", "bbb"],
+                vec!["ccc", "ccc", "ccc", "ccc", "ccc", "ccc"],
+            ];
+            let results = aggregate_results(input, 0.0);
+
+            for e in expected {
+                assert!(results.contains(&e));
+            }
+        }
+
+        #[test]
+        fn test_non_zero_max_edit_frac_one_merge() {
+            let input = vec![
+                vec![vec!["aaaa", "aaaa"], vec!["bbbb", "bbbb"]],
+                vec![vec!["aaax", "aaax"], vec!["bbbz", "bbbz"]],
+            ];
+            let expected = vec![
+                vec!["aaaa", "aaaa", "aaax", "aaax"],
+                vec!["bbbb", "bbbb", "bbbz", "bbbz"],
+            ];
+            let results = aggregate_results(input, 0.25);
+
+            for e in expected {
+                assert!(results.contains(&e));
+            }
+        }
+
+        #[test]
+        fn test_no_merge() {
+            let input = vec![vec![vec!["aa", "aa"]]];
+            let expected = vec![vec!["aa", "aa"]];
+            let results = aggregate_results(input, 0.0);
+
             assert_eq!(results, expected);
-        }
-
-        #[test]
-        #[should_panic(expected = "inputs cannot be empty.")]
-        fn test_reject_empty() {
-            let inputs = Vec::new();
-            init_container(&inputs);
         }
     }
 
@@ -147,46 +191,53 @@ mod tests {
         use crate::form_clusters;
 
         #[test]
-        fn test_cluster_correct() {
-            let inputs = vec!["a", "a", "b", "b"];
-            let expected = vec![vec!["a", "a"], vec!["b", "b"]];
+        fn test_correct_equal_work_per_thread() {
+            let data = vec!["aa", "aa", "bb", "bb"];
+            let expected = vec![vec![vec!["aa", "aa"]], vec![vec!["bb", "bb"]]];
+            let result = form_clusters(&data, 0.0, 2);
 
-            let results = form_clusters(&inputs, 0.0);
-            assert_eq!(results, expected);
+            // Order of objects in result is nondeterministic
+            for e in expected {
+                assert!(result.contains(&e))
+            }
         }
 
         #[test]
-        fn test_clusters_formed_below_tol() {
-            let inputs = vec!["aaa", "aac", "bbb", "bbc"];
-            let expected = vec![vec!["aaa", "aac"], vec!["bbb", "bbc"]];
+        fn test_unequal_work_per_thread() {
+            let data = vec!["aa", "aa", "bb", "bb"];
+            let expected = vec![vec![vec!["aa"]], vec![vec!["aa"]], vec![vec!["bb", "bb"]]];
+            let result = form_clusters(&data, 0.0, 3);
 
-            let results = form_clusters(&inputs, 0.34);
-            assert_eq!(results, expected);
+            // Order of objects in result is nondeterministic
+            for e in expected {
+                assert!(result.contains(&e))
+            }
         }
 
         #[test]
-        fn test_clusters_formed_equal_tol() {
-            let inputs = vec!["aa", "ab", "cc", "cd"];
-            let expected = vec![vec!["aa", "ab"], vec!["cc", "cd"]];
+        fn test_equal_threads_and_inputs() {
+            let data = vec!["aa", "aa", "bb", "bb"];
+            let expected = vec![
+                vec![vec!["aa"]],
+                vec![vec!["aa"]],
+                vec![vec!["bb"]],
+                vec![vec!["bb"]],
+            ];
+            let result = form_clusters(&data, 0.0, 4);
 
-            let results = form_clusters(&inputs, 0.5);
-            assert_eq!(results, expected);
+            // Order of objects in result is nondeterministic
+            for e in expected {
+                assert!(result.contains(&e))
+            }
         }
 
         #[test]
-        fn test_no_clusters() {
-            let inputs = vec!["a", "b", "c"];
-            let expected = vec![vec!["a"], vec!["b"], vec!["c"]];
-
-            let results = form_clusters(&inputs, 0.0);
-            assert_eq!(results, expected);
-        }
-
-        #[test]
-        #[should_panic(expected = "inputs cannot be empty.")]
-        fn test_reject_empty() {
-            let inputs = Vec::new();
-            form_clusters(&inputs, 0.0);
+        #[should_panic(
+            expected = "Not enough work per thread. Ensure n_threads is not greater than the number of input strings."
+        )]
+        fn test_more_threads_than_inputs() {
+            let data = vec!["aa", "aa", "bb", "bb"];
+            form_clusters(&data, 0.0, 5);
         }
     }
 }

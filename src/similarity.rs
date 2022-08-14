@@ -14,7 +14,7 @@ pub fn is_similar(a: &str, b: &str, tol: f32) -> bool {
     dist <= max_edit as usize
 }
 
-fn get_max_edit_dist(a: &str, b: &str, tol: f32) -> usize {
+ fn get_max_edit_dist(a: &str, b: &str, tol: f32) -> usize {
     let max_edit: f32;
     let l_a = a.len() as f32;
     let l_b = b.len() as f32;
@@ -27,10 +27,13 @@ fn get_max_edit_dist(a: &str, b: &str, tol: f32) -> usize {
     max_edit as usize
 }
 
+
+
+
 #[cfg(test)]
 mod tests {
     mod is_similar {
-        use crate::utils::is_similar;
+        use crate::similarity::is_similar;
 
         #[test]
         fn is_similar_accepts_below_max_edit() {
@@ -61,7 +64,7 @@ mod tests {
     }
 
     mod max_edit_distance {
-        use crate::utils::get_max_edit_dist;
+        use crate::similarity::get_max_edit_dist;
 
         #[test]
         fn max_edit_calculation_correct() {

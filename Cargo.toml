@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 edit-distance = "2.1.0"
+crossbeam = "0.8.2"
+fast-math = "0.1.1"

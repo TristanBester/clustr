@@ -40,112 +40,109 @@ pub fn aggregate_results<'a>(
     return results.to_vec()[0].clone();
 }
 
+#[cfg(test)]
 mod tests {
     use super::aggregate_results;
 
-    mod aggregate_results {
-        use super::aggregate_results;
+    #[test]
+    fn test_one_merge() {
+        let input = vec![vec![vec!["aa"], vec!["bb"]], vec![vec!["aa"], vec!["bb"]]];
+        let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
+        let results = aggregate_results(input, 0.0);
 
-        #[test]
-        fn test_one_merge() {
-            let input = vec![vec![vec!["aa"], vec!["bb"]], vec![vec!["aa"], vec!["bb"]]];
-            let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
-            let results = aggregate_results(input, 0.0);
-
-            for e in expected {
-                assert!(results.contains(&e));
-            }
+        for e in expected {
+            assert!(results.contains(&e));
         }
+    }
 
-        #[test]
-        fn test_three_merge() {
-            let input = vec![
-                vec![vec!["aa"]],
-                vec![vec!["bb"]],
-                vec![vec!["aa"]],
-                vec![vec!["bb"]],
-            ];
-            let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
-            let results = aggregate_results(input, 0.0);
+    #[test]
+    fn test_three_merge() {
+        let input = vec![
+            vec![vec!["aa"]],
+            vec![vec!["bb"]],
+            vec![vec!["aa"]],
+            vec![vec!["bb"]],
+        ];
+        let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
+        let results = aggregate_results(input, 0.0);
 
-            for e in expected {
-                assert!(results.contains(&e));
-            }
+        for e in expected {
+            assert!(results.contains(&e));
         }
+    }
 
-        #[test]
-        fn test_two_merge_one_pass() {
-            let input = vec![vec![vec!["aa"]], vec![vec!["bb"]], vec![vec!["aa"]]];
-            let expected = vec![vec!["aa", "aa"], vec!["bb"]];
-            let results = aggregate_results(input, 0.0);
+    #[test]
+    fn test_two_merge_one_pass() {
+        let input = vec![vec![vec!["aa"]], vec![vec!["bb"]], vec![vec!["aa"]]];
+        let expected = vec![vec!["aa", "aa"], vec!["bb"]];
+        let results = aggregate_results(input, 0.0);
 
-            for e in expected {
-                assert!(results.contains(&e));
-            }
+        for e in expected {
+            assert!(results.contains(&e));
         }
+    }
 
-        #[test]
-        fn test_six_merge_one_pass() {
-            let input = vec![
-                vec![vec!["aa"]],
-                vec![vec!["bb"]],
-                vec![vec!["aa"]],
-                vec![vec!["bb"]],
-                vec![vec!["aa"]],
-                vec![vec!["bb"]],
-                vec![vec!["aa"]],
-            ];
-            let expected = vec![vec!["aa", "aa", "aa", "aa"], vec!["bb", "bb", "bb"]];
-            let results = aggregate_results(input, 0.0);
+    #[test]
+    fn test_six_merge_one_pass() {
+        let input = vec![
+            vec![vec!["aa"]],
+            vec![vec!["bb"]],
+            vec![vec!["aa"]],
+            vec![vec!["bb"]],
+            vec![vec!["aa"]],
+            vec![vec!["bb"]],
+            vec![vec!["aa"]],
+        ];
+        let expected = vec![vec!["aa", "aa", "aa", "aa"], vec!["bb", "bb", "bb"]];
+        let results = aggregate_results(input, 0.0);
 
-            for e in expected {
-                assert!(results.contains(&e));
-            }
+        for e in expected {
+            assert!(results.contains(&e));
         }
+    }
 
-        #[test]
-        fn test_two_merge_multiple_element_clusters() {
-            let input = vec![
-                vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
-                vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
-                vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
-            ];
-            let expected = vec![
-                vec!["aaa", "aaa", "aaa", "aaa", "aaa", "aaa"],
-                vec!["bbb", "bbb", "bbb", "bbb", "bbb", "bbb"],
-                vec!["ccc", "ccc", "ccc", "ccc", "ccc", "ccc"],
-            ];
-            let results = aggregate_results(input, 0.0);
+    #[test]
+    fn test_two_merge_multiple_element_clusters() {
+        let input = vec![
+            vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
+            vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
+            vec![vec!["aaa", "aaa"], vec!["bbb", "bbb"], vec!["ccc", "ccc"]],
+        ];
+        let expected = vec![
+            vec!["aaa", "aaa", "aaa", "aaa", "aaa", "aaa"],
+            vec!["bbb", "bbb", "bbb", "bbb", "bbb", "bbb"],
+            vec!["ccc", "ccc", "ccc", "ccc", "ccc", "ccc"],
+        ];
+        let results = aggregate_results(input, 0.0);
 
-            for e in expected {
-                assert!(results.contains(&e));
-            }
+        for e in expected {
+            assert!(results.contains(&e));
         }
+    }
 
-        #[test]
-        fn test_non_zero_max_edit_frac_one_merge() {
-            let input = vec![
-                vec![vec!["aaaa", "aaaa"], vec!["bbbb", "bbbb"]],
-                vec![vec!["aaax", "aaax"], vec!["bbbz", "bbbz"]],
-            ];
-            let expected = vec![
-                vec!["aaaa", "aaaa", "aaax", "aaax"],
-                vec!["bbbb", "bbbb", "bbbz", "bbbz"],
-            ];
-            let results = aggregate_results(input, 0.25);
+    #[test]
+    fn test_non_zero_max_edit_frac_one_merge() {
+        let input = vec![
+            vec![vec!["aaaa", "aaaa"], vec!["bbbb", "bbbb"]],
+            vec![vec!["aaax", "aaax"], vec!["bbbz", "bbbz"]],
+        ];
+        let expected = vec![
+            vec!["aaaa", "aaaa", "aaax", "aaax"],
+            vec!["bbbb", "bbbb", "bbbz", "bbbz"],
+        ];
+        let results = aggregate_results(input, 0.25);
 
-            for e in expected {
-                assert!(results.contains(&e));
-            }
+        for e in expected {
+            assert!(results.contains(&e));
         }
+    }
 
-        #[test]
-        fn test_no_merge() {
-            let input = vec![vec![vec!["aa", "aa"]]];
-            let expected = vec![vec!["aa", "aa"]];
-            let results = aggregate_results(input, 0.0);
+    #[test]
+    fn test_no_merge() {
+        let input = vec![vec![vec!["aa", "aa"]]];
+        let expected = vec![vec!["aa", "aa"]];
+        let results = aggregate_results(input, 0.0);
 
-            assert_eq!(results, expected);
-        }
+        assert_eq!(results, expected);
     }
 }

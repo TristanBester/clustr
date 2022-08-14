@@ -6,10 +6,6 @@ pub fn form_clusters<'a>(
     max_edit_frac: f32,
     n_threads: usize,
 ) -> Vec<Vec<Vec<&'a str>>> {
-    if n_threads > inputs.len() {
-        panic!("Not enough work per thread. Ensure n_threads is not greater than the number of input strings.")
-    }
-
     let inputs_per_thread = inputs.len() / n_threads as usize;
     let results = Arc::new(Mutex::new(Vec::new()));
 
@@ -80,14 +76,5 @@ mod tests {
         for e in expected {
             assert!(result.contains(&e))
         }
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "Not enough work per thread. Ensure n_threads is not greater than the number of input strings."
-    )]
-    fn test_more_threads_than_inputs() {
-        let data = vec!["aa", "aa", "bb", "bb"];
-        form_clusters(&data, 0.0, 5);
     }
 }

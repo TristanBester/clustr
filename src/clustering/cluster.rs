@@ -1,10 +1,6 @@
 use super::is_similar;
 
 pub fn cluster<'a>(inputs: &[&'a str], max_edit_frac: f32) -> Vec<Vec<&'a str>> {
-    if inputs.len() == 0 {
-        panic!("inputs cannot be empty.");
-    }
-
     let mut container = init_container(inputs);
 
     // Store if value has been moved into a cluster
@@ -41,10 +37,6 @@ pub fn cluster<'a>(inputs: &[&'a str], max_edit_frac: f32) -> Vec<Vec<&'a str>> 
 }
 
 fn init_container<'a>(inputs: &[&'a str]) -> Vec<Vec<&'a str>> {
-    if inputs.len() == 0 {
-        panic!("inputs cannot be empty.");
-    }
-
     let mut container = vec![Vec::new(); inputs.len()];
 
     for (i, s) in inputs.iter().enumerate() {
@@ -95,13 +87,6 @@ mod tests {
             let results = cluster(&inputs, 0.0);
             assert_eq!(results, expected);
         }
-
-        #[test]
-        #[should_panic(expected = "inputs cannot be empty.")]
-        fn test_reject_empty() {
-            let inputs = Vec::new();
-            cluster(&inputs, 0.0);
-        }
     }
 
     mod init_container {
@@ -114,13 +99,6 @@ mod tests {
 
             let results = init_container(&inputs);
             assert_eq!(results, expected);
-        }
-
-        #[test]
-        #[should_panic(expected = "inputs cannot be empty.")]
-        fn test_reject_empty() {
-            let inputs = Vec::new();
-            init_container(&inputs);
         }
     }
 }

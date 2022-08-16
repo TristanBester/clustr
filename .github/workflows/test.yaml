@@ -26,6 +26,9 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Setup toolchain
+        run: rustup toolchain install nightly
+
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:

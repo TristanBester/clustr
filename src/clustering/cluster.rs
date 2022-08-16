@@ -56,7 +56,6 @@ mod tests {
         fn test_cluster_correct() {
             let inputs = vec!["a", "a", "b", "b"];
             let expected = vec![vec!["a", "a"], vec!["b", "b"]];
-
             let results = cluster(&inputs, 0.0);
             assert_eq!(results, expected);
         }
@@ -65,7 +64,6 @@ mod tests {
         fn test_clusters_formed_below_max_edit_frac() {
             let inputs = vec!["aaa", "aac", "bbb", "bbc"];
             let expected = vec![vec!["aaa", "aac"], vec!["bbb", "bbc"]];
-
             let results = cluster(&inputs, 0.34);
             assert_eq!(results, expected);
         }
@@ -74,7 +72,6 @@ mod tests {
         fn test_clusters_formed_equal_max_edit_frac() {
             let inputs = vec!["aa", "ab", "cc", "cd"];
             let expected = vec![vec!["aa", "ab"], vec!["cc", "cd"]];
-
             let results = cluster(&inputs, 0.5);
             assert_eq!(results, expected);
         }
@@ -83,7 +80,6 @@ mod tests {
         fn test_no_clusters() {
             let inputs = vec!["a", "b", "c"];
             let expected = vec![vec!["a"], vec!["b"], vec!["c"]];
-
             let results = cluster(&inputs, 0.0);
             assert_eq!(results, expected);
         }
@@ -96,7 +92,6 @@ mod tests {
         fn test_structure_correct() {
             let inputs = vec!["a", "b"];
             let expected = vec![vec!["a"], vec!["b"]];
-
             let results = init_container(&inputs);
             assert_eq!(results, expected);
         }

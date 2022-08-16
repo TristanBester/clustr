@@ -38,7 +38,6 @@ mod tests {
         fn is_similar_accepts_below_max_edit() {
             let a = "aaaa";
             let b = "aaab";
-
             let result = is_similar(&a, &b, 0.5);
             assert!(result);
         }
@@ -47,7 +46,6 @@ mod tests {
         fn is_similar_accepts_max_edit() {
             let a = "aaaa";
             let b = "aabb";
-
             let result = is_similar(&a, &b, 0.5);
             assert!(result);
         }
@@ -56,7 +54,6 @@ mod tests {
         fn is_similar_rejects_above_max_edit() {
             let a = "a";
             let b = "abbb";
-
             let result = is_similar(&a, &b, 1.0);
             assert!(!result);
         }
@@ -69,7 +66,6 @@ mod tests {
         fn max_edit_calculation_correct() {
             let a = "aa";
             let b = "bbb";
-
             let result = get_max_edit_dist(&a, &b, 0.5);
             assert_eq!(result, 1);
         }
@@ -78,7 +74,6 @@ mod tests {
         fn max_edit_calculation_applies_floor() {
             let a = "aaaa";
             let b = "bbbb";
-
             let result = get_max_edit_dist(&a, &b, 0.49);
             assert_eq!(result, 1);
         }
@@ -87,7 +82,6 @@ mod tests {
         fn max_edit_shorted_string_selected() {
             let a = "aa";
             let b = "bbb";
-
             let op_one = get_max_edit_dist(&a, &b, 0.5);
             let op_two = get_max_edit_dist(&b, &a, 0.5);
             assert_eq!(op_one, op_two);
@@ -97,7 +91,6 @@ mod tests {
         fn max_edit_handles_empty() {
             let a = "";
             let b = "bbb";
-
             let result = get_max_edit_dist(&a, &b, 0.5);
             assert_eq!(result, 0);
         }

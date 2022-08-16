@@ -10,6 +10,7 @@ pub enum ValueError {
     InvalidFraction,
     EmptyVector,
     InsufficientWork,
+    InsufficientThreadCount,
 }
 
 pub fn cluster_strings<'a>(
@@ -27,9 +28,11 @@ pub fn cluster_strings<'a>(
     if n_threads > inputs.len() {
         return Err(ValueError::InsufficientWork);
     }
+    if n_threads <= 0 {
+        return Err(ValueError::InsufficientThreadCount);
+    }
 
     let clusters = form_clusters(inputs, max_edit_frac, n_threads);
     let result = aggregate_results(clusters, max_edit_frac);
-
     Ok(result)
 }

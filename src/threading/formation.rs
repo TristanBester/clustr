@@ -42,7 +42,6 @@ mod tests {
         let data = vec!["aa", "aa", "bb", "bb"];
         let expected = vec![vec![vec!["aa", "aa"]], vec![vec!["bb", "bb"]]];
         let result = form_clusters(&data, 0.0, 2);
-
         // Order of objects in result is nondeterministic
         for e in expected {
             assert!(result.contains(&e))
@@ -54,7 +53,6 @@ mod tests {
         let data = vec!["aa", "aa", "bb", "bb"];
         let expected = vec![vec![vec!["aa"]], vec![vec!["aa"]], vec![vec!["bb", "bb"]]];
         let result = form_clusters(&data, 0.0, 3);
-
         // Order of objects in result is nondeterministic
         for e in expected {
             assert!(result.contains(&e))
@@ -71,7 +69,6 @@ mod tests {
             vec![vec!["bb"]],
         ];
         let result = form_clusters(&data, 0.0, 4);
-
         // Order of objects in result is nondeterministic
         for e in expected {
             assert!(result.contains(&e))

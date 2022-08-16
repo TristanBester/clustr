@@ -40,7 +40,6 @@ mod tests {
             let mut set_one = vec![vec!["a"], vec!["b"]];
             let mut set_two = vec![vec!["c"], vec!["d"]];
             let expected = vec![vec!["a"], vec!["b"], vec!["c"], vec!["d"]];
-
             let result = merge_clusters(&mut set_one, &mut set_two, 0.0);
             assert_eq!(result, expected);
         }
@@ -50,7 +49,6 @@ mod tests {
             let mut set_one = vec![vec!["aa"], vec!["bb"]];
             let mut set_two = vec![vec!["aa"], vec!["bb"]];
             let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
-
             let result = merge_clusters(&mut set_one, &mut set_two, 0.5);
             assert_eq!(result, expected);
         }
@@ -60,7 +58,6 @@ mod tests {
             let mut set_one = vec![vec!["aa"], vec!["bb"]];
             let mut set_two = vec![vec!["aa"], vec!["bb"], vec!["cc"]];
             let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"], vec!["cc"]];
-
             let result = merge_clusters(&mut set_one, &mut set_two, 0.5);
             assert_eq!(result, expected);
         }
@@ -70,7 +67,6 @@ mod tests {
             let mut set_one = vec![vec!["aa"], vec!["cc"]];
             let mut set_two = vec![vec!["ab"], vec!["cd"]];
             let expected = vec![vec!["aa", "ab"], vec!["cc", "cd"]];
-
             let result = merge_clusters(&mut set_one, &mut set_two, 0.5);
             assert_eq!(result, expected);
         }

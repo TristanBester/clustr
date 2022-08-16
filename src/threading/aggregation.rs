@@ -49,7 +49,6 @@ mod tests {
         let input = vec![vec![vec!["aa"], vec!["bb"]], vec![vec!["aa"], vec!["bb"]]];
         let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
         let results = aggregate_results(input, 0.0);
-
         for e in expected {
             assert!(results.contains(&e));
         }
@@ -65,7 +64,6 @@ mod tests {
         ];
         let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
         let results = aggregate_results(input, 0.0);
-
         for e in expected {
             assert!(results.contains(&e));
         }
@@ -76,7 +74,6 @@ mod tests {
         let input = vec![vec![vec!["aa"]], vec![vec!["bb"]], vec![vec!["aa"]]];
         let expected = vec![vec!["aa", "aa"], vec!["bb"]];
         let results = aggregate_results(input, 0.0);
-
         for e in expected {
             assert!(results.contains(&e));
         }
@@ -95,7 +92,6 @@ mod tests {
         ];
         let expected = vec![vec!["aa", "aa", "aa", "aa"], vec!["bb", "bb", "bb"]];
         let results = aggregate_results(input, 0.0);
-
         for e in expected {
             assert!(results.contains(&e));
         }
@@ -114,7 +110,6 @@ mod tests {
             vec!["ccc", "ccc", "ccc", "ccc", "ccc", "ccc"],
         ];
         let results = aggregate_results(input, 0.0);
-
         for e in expected {
             assert!(results.contains(&e));
         }
@@ -131,7 +126,6 @@ mod tests {
             vec!["bbbb", "bbbb", "bbbz", "bbbz"],
         ];
         let results = aggregate_results(input, 0.25);
-
         for e in expected {
             assert!(results.contains(&e));
         }
@@ -142,7 +136,6 @@ mod tests {
         let input = vec![vec![vec!["aa", "aa"]]];
         let expected = vec![vec!["aa", "aa"]];
         let results = aggregate_results(input, 0.0);
-
         assert_eq!(results, expected);
     }
 }

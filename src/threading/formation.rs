@@ -18,7 +18,7 @@ pub fn form_clusters<'a>(
             if i + 1 != n_threads {
                 end = (i + 1) * inputs_per_thread;
             } else {
-                end = inputs.len()
+                end = inputs.len();
             }
 
             s.spawn(move |_| {

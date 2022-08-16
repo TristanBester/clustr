@@ -3,8 +3,8 @@ on: [push]
 name: Tests
 
 jobs:
-  test:
-    name: Rust project
+  tests:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -13,8 +13,8 @@ jobs:
           toolchain: stable
       - run: cargo test
 
-  build:
-    name: Rust project
+  coverage:
+    name: Coverage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,8 +29,7 @@ jobs:
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:
-          version: '0.15.0'
-          args: '-- --test-threads 1'
+          args: '-- --test-threads 1 --docs'
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1.0.2

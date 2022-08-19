@@ -34,7 +34,7 @@ clustr = "0.1.1"
 
 ### Getting Started
 Basic usage:
-```
+```rust
 let inputs = vec!["aaaa", "aaax", "bbbb", "bbbz"];
 let expected = vec![vec!["aaaa", "aaax"], vec!["bbbb", "bbbz"]];
 
@@ -44,7 +44,7 @@ assert_eq!(clusters, expected);
 ```
 
 Multithreading:
-```
+```rust
 let inputs = vec!["aa", "bb", "aa", "bb"];
 let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
 

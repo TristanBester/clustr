@@ -2,8 +2,23 @@
 name = "clustr"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Multithreaded string clustering"
+homepage = "https://github.com/TristanBester/clustr"
+documentation = "https://github.com/TristanBester/clustr"
+repository = "https://github.com/TristanBester/clustr"
+readme = "https://github.com/TristanBester/clustr/blob/main/README.md"
+
+exclude = [
+    "docs/*",
+    ".github/*",
+    ".gitignore",
+    "README.md",
+    "LICENSE",
+]
 
 [dependencies]
 edit-distance = "2.1.0"
 crossbeam = "0.8.2"
 fast-math = "0.1.1"
+

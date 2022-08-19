@@ -29,7 +29,7 @@ Strings are aggregated into clusters based on pairwise Levenshtein distance. If 
 ## Installation
 ```
 [dependencies]
-clustr = "0.1.0"
+clustr = "0.1.1"
 ```
 
 ### Getting Started

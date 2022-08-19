@@ -7,7 +7,6 @@ description = "Multithreaded string clustering"
 homepage = "https://github.com/TristanBester/clustr"
 documentation = "https://github.com/TristanBester/clustr"
 repository = "https://github.com/TristanBester/clustr"
-readme = "https://github.com/TristanBester/clustr/blob/main/README.md"
 
 exclude = [
     "docs/*",

@@ -5,7 +5,6 @@ edition = "2021"
 license = "MIT"
 description = "Multithreaded string clustering"
 homepage = "https://github.com/TristanBester/clustr"
-documentation = "https://github.com/TristanBester/clustr"
 repository = "https://github.com/TristanBester/clustr"
 
 exclude = [

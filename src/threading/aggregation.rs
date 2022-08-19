@@ -23,8 +23,10 @@ pub fn aggregate_results<'a>(
                     let x = &mut results[j].clone();
 
                     if j + 1 == results.len() {
+                        // Pass result to next level
                         aggregations.lock().unwrap().push(results[j].clone());
                     } else {
+                        // Merge clusters
                         let y = &mut results[j + 1].clone();
                         let agg = merge_clusters(x, y, max_edit_frac);
                         aggregations.lock().unwrap().push(agg);

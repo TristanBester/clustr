@@ -21,13 +21,13 @@
 //! A key optimisation made to significantly improve the performance of the implementation is the use
 //! of transitivity in the clustering operation.
 //!
-//! If string A is clustered with string B and string B clustered with string C, string A and C
+//! If string A is clustered with string B and string B clustered with string C, strings A and C
 //! will be clustered together. This optimisation often provides significant runtime performance benefits with
 //! negligible impact on clustering performance.
 //!
-//! There are a number instances in which this optimisation will result in poor clustering performance.
+//! There are a number of instances in which this optimisation will result in poor clustering performance.
 //! As a result, if this property cannot be exploited on the desired input data, another implementation
-//! shoul be used.
+//! should be used.
 //!
 //! # Installation
 //!
@@ -96,7 +96,7 @@ pub enum ValueError {
 
 /// Group similar input strings into clusters.
 ///
-/// Strings will be grouped into a cluster if the Leventein distance between the
+/// Strings will be grouped into a cluster if the Levenshtein distance between the
 /// strings is below 'max_edit_frac' of the shorter string's length.
 ///
 /// # Examples

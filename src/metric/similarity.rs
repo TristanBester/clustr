@@ -19,6 +19,7 @@ fn get_max_edit_dist(a: &str, b: &str, tol: f32) -> usize {
     let l_a = a.len() as f32;
     let l_b = b.len() as f32;
 
+    // fraction of shorter string's length
     if l_a < l_b {
         max_edit = l_a * tol;
     } else {

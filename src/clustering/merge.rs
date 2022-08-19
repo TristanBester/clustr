@@ -5,6 +5,7 @@ pub fn merge_clusters<'a>(
     set_two: &mut Vec<Vec<&'a str>>,
     max_edit_frac: f32,
 ) -> Vec<Vec<&'a str>> {
+    // Store if values have already been merged
     let mut moved = vec![false; set_two.len()];
 
     for i in 0..set_one.len() {
@@ -20,6 +21,7 @@ pub fn merge_clusters<'a>(
         }
     }
 
+    // Create new clusters for values that could not be merged
     for (i, m) in moved.iter().enumerate() {
         if !*m {
             set_one.push(set_two[i].clone());

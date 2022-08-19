@@ -13,8 +13,7 @@ pub fn cluster<'a>(inputs: &[&'a str], max_edit_frac: f32) -> Vec<Vec<&'a str>> 
             // A value cannot be moved into multiple clusters
             continue;
         } else {
-            // If value has not been moved into any of the previous clusters
-            // it forms a new cluster
+            // If value has not been moved into any of the previous clusters, form a new cluster
             is_repr[i] = true;
         }
 
@@ -27,7 +26,7 @@ pub fn cluster<'a>(inputs: &[&'a str], max_edit_frac: f32) -> Vec<Vec<&'a str>> 
         }
     }
 
-    // Delete single value vectors remaining after values moved into cluster
+    // Delete single value vectors that remain after values moved into a cluster
     for (i, v) in moved.iter().enumerate().rev() {
         if *v {
             container.remove(i);

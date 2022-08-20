@@ -9,7 +9,9 @@
 
 ---
 
-**Documentation**: <a href="https://docs.rs/clustr/0.1.1/clustr" target="_blank">https://docs.rs/clustr/0.1.1/clustr/</a>
+**Documentation**: <a href="https://docs.rs/clustr/0.1.2/clustr" target="_blank">https://docs.rs/clustr/0.1.2/clustr/</a>
+
+**Crate**: <a href="https://crates.io/crates/clustr" target="_blank">https://crates.io/crates/clustr</a>
 
 **Source Code**: <a href="https://github.com/TristanBester/clustr" target="_blank">https://github.com/TristanBester/clustr</a>
 
@@ -29,7 +31,7 @@ Strings are aggregated into clusters based on pairwise Levenshtein distance. If 
 ## Installation
 ```
 [dependencies]
-clustr = "0.1.1"
+clustr = "0.1.2"
 ```
 
 ### Getting Started

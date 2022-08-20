@@ -35,7 +35,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! clustr = "0.1.1"
+//! clustr = "0.1.2"
 //! ```
 //!
 //! # Examples

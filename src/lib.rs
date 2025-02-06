@@ -63,6 +63,7 @@
 //! let inputs = vec!["aa", "bb", "aa", "bb"];
 //! let expected = vec![vec!["aa", "aa"], vec!["bb", "bb"]];
 //!
+//! // Cluster using 4 threads
 //! let results = clustr::cluster_strings(&inputs, 0.0, 4)?;
 //!  
 //! // Order of returned clusters nondeterministic
